@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@edumanager.edu');
+  const [password, setPassword] = useState('Welcome@123');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -59,6 +59,20 @@ export function LoginForm() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Sign in failed';
       toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDemoLogin() {
+    setLoading(true);
+    try {
+      await storePortalToken('demo-super-admin-token');
+      toast.success('Signed in as Demo Super Admin');
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error) {
+      toast.error('Demo login failed');
     } finally {
       setLoading(false);
     }
@@ -129,6 +143,16 @@ export function LoginForm() {
           ) : (
             "Log In"
           )}
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleDemoLogin}
+          className="h-12 w-full rounded-xl text-base font-semibold border-slate-200 hover:bg-slate-50"
+          disabled={loading}
+        >
+          Quick Demo Login (Bypass Auth)
         </Button>
 
         <div className="text-left">

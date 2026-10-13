@@ -37,19 +37,19 @@ type OnboardSuccess = {
 };
 
 const initialState = {
-  schoolName: '',
-  location: '',
+  schoolName: 'SMA Unggul Pradita',
+  location: 'Jakarta Selatan',
   termSystem: '3',
-  schoolMotto: '',
-  schoolPhone: '',
-  schoolEmail: '',
-  schoolAddress: '',
+  schoolMotto: 'Excellence and Integrity',
+  schoolPhone: '+62 21 555 0192',
+  schoolEmail: 'info@pradita.sch.id',
+  schoolAddress: 'Jl. Pendidikan Raya No. 45, Jakarta Selatan',
   defaultPassword: 'Welcome@123',
   studentIdPrefix: 'STU',
   teacherIdPrefix: 'TCH',
-  adminName: '',
-  adminPhone: '',
-  adminEmail: '',
+  adminName: 'Dr. H. Ahmad Fauzi, M.Pd',
+  adminPhone: '+62 812 3456 7890',
+  adminEmail: 'ahmad.fauzi@pradita.sch.id',
 };
 
 export function SchoolForm() {
