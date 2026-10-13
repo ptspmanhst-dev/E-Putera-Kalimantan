@@ -8,6 +8,7 @@ import {
   BarChart3,
   Building2,
   CircleUserRound,
+  FileText,
   LogOut,
   Plus,
   Settings2,
@@ -23,6 +24,8 @@ const navigation = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { href: '/schools', label: 'Schools', icon: Building2 },
   { href: '/schools/new', label: 'Onboard School', icon: Plus },
+  { href: '/users', label: 'Users', icon: CircleUserRound },
+  { href: '/audit-logs', label: 'Audit Logs', icon: FileText },
   { href: '/settings', label: 'Settings', icon: Settings2 },
 ] as const;
 
