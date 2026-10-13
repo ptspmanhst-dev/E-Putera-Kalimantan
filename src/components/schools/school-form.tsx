@@ -111,7 +111,7 @@ export function SchoolForm() {
         });
 
         if (!uploadRes.ok) {
-          const err = await uploadRes.json().catch(() => null);
+          const err = (await uploadRes.json().catch(() => null)) as any;
           throw new Error(err?.error ?? 'Logo upload failed');
         }
 
@@ -146,7 +146,7 @@ export function SchoolForm() {
       });
 
       if (!response.ok) {
-        const payload = await response.json().catch(() => null);
+        const payload = (await response.json().catch(() => null)) as any;
         throw new Error(payload?.error ?? 'Unable to onboard school');
       }
 

@@ -82,7 +82,7 @@ export function SchoolDetailEditor({ school }: Props) {
         method: 'DELETE',
       });
       if (!response.ok) {
-        const err = await response.json().catch(() => null);
+        const err = (await response.json().catch(() => null)) as any;
         throw new Error(err?.error ?? 'Failed to delete school');
       }
       toast.success('School deleted');
@@ -104,7 +104,7 @@ export function SchoolDetailEditor({ school }: Props) {
         body: JSON.stringify(adminForm),
       });
       if (!response.ok) {
-        const err = await response.json().catch(() => null);
+        const err = (await response.json().catch(() => null)) as any;
         throw new Error(err?.error ?? 'Failed to update admin');
       }
       toast.success('Admin details updated');
@@ -134,7 +134,7 @@ export function SchoolDetailEditor({ school }: Props) {
         });
 
         if (!uploadRes.ok) {
-          const err = await uploadRes.json().catch(() => null);
+          const err = (await uploadRes.json().catch(() => null)) as any;
           throw new Error(err?.error ?? 'Logo upload failed');
         }
 
@@ -170,7 +170,7 @@ export function SchoolDetailEditor({ school }: Props) {
       });
 
       if (!response.ok) {
-        const err = await response.json().catch(() => null);
+        const err = (await response.json().catch(() => null)) as any;
         throw new Error(err?.error ?? 'Failed to update school');
       }
 

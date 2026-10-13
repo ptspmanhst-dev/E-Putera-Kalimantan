@@ -9,7 +9,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const { schoolId } = await context.params;
     const body = await request.json();
-    const result = await updateSchoolAdmin(schoolId, body);
+    const result = await updateSchoolAdmin(schoolId, body as any);
     return NextResponse.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Update failed';

@@ -6,9 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typedRoutes: true,
-  turbopack: {
-    root: __dirname,
-  },
+  allowedDevOrigins: ['ais-dev-uijwycpt2ftlmnea7ryrzk-233376946516.asia-southeast1.run.app'],
 };
 
 export default nextConfig;
