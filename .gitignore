@@ -72,6 +72,8 @@ dist/
 # Firebase service account keys (NEVER commit these)
 *-firebase-adminsdk-*.json
 *-service-account*.json
+service-account*.json
+service-account.json
 
 # Temporary / scratch scripts (dev artifacts)
 extract.js

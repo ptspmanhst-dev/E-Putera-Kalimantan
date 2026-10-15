@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "tsc -p tsconfig.json --noEmit",
-    "eslint": "eslint . --max-warnings 0"
+    "eslint": "eslint . --max-warnings 0",
+    "test": "bun test test/session-auth.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

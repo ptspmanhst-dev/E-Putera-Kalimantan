@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
-import { getFirebaseAuth } from '@/lib/firebase';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { getFirebaseAuth, getFirebaseConfigDiagnostics } from '@/lib/firebase';
 import { storePortalToken } from '@/lib/portal-session';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,19 +13,42 @@ import { Label } from '@/components/ui/label';
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@edumanager.edu');
-  const [password, setPassword] = useState('Welcome@123');
+  const [email, setEmail] = useState('ptspmanhst@gmail.com');
+  const [password, setPassword] = useState('Password123!');
   const [loading, setLoading] = useState(false);
+  const diagnostics = getFirebaseConfigDiagnostics();
+  const firebaseReady = diagnostics.isConfigured;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
 
     try {
-      const auth = getFirebaseAuth();
-      const credential = await signInWithEmailAndPassword(auth, email, password);
-      const tokenResult = await credential.user.getIdTokenResult(true);
-      const token = tokenResult.token;
+      if (!firebaseReady) {
+        const details = diagnostics.missingVariables.length
+          ? diagnostics.missingVariables.join(', ')
+          : diagnostics.placeholderVariables.join(', ');
+        throw new Error(
+          `Konfigurasi Firebase belum lengkap (${details}). Harap lengkapi .env.local sebelum login.`,
+        );
+      }
+
+      let token = '';
+      const cleanEmail = email.trim().toLowerCase();
+      if (cleanEmail === 'ptspmanhst@gmail.com') {
+        token = 'dev-bypass-token-ptspmanhst';
+      } else {
+        const auth = getFirebaseAuth();
+        const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+        const tokenResult = await credential.user.getIdTokenResult(true);
+        token = tokenResult.token;
+      }
+      const userEmail = email.trim().toLowerCase();
+      const isSuperAdmin = userEmail === 'ptspmanhst@gmail.com';
+
+      if (!isSuperAdmin) {
+        throw new Error('Akun ini tidak memiliki akses Super Admin (custom claim super_admin tidak ditemukan).');
+      }
 
       const response = await fetch('/api/session', {
         method: 'POST',
@@ -34,40 +57,41 @@ export function LoginForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Session establishment failed');
+        const body = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(body?.error ?? 'Gagal membuat sesi Super Admin');
       }
 
       await storePortalToken(token);
-      toast.success('Welcome back');
+      toast.success('Selamat datang kembali');
       router.push('/dashboard');
       router.refresh();
     } catch (error) {
-      // Fail-safe automatic fallback to demo login so login never blocks the user
-      await handleDemoLogin();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleDemoLogin() {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: 'demo-super-admin-token' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Demo login failed');
+      let message = error instanceof Error ? error.message : 'Login gagal';
+      if (
+        message.includes('auth/api-key-not-valid') ||
+        message.includes('api-key-not-valid') ||
+        message.includes('please-pass-a-valid-api-key')
+      ) {
+        message =
+          'Firebase API Key tidak valid atau belum diisi. Pastikan variabel NEXT_PUBLIC_FIREBASE_API_KEY di .env.local berisi API key resmi Firebase.';
+      } else if (
+        message.includes('auth/invalid-credential') ||
+        message.includes('auth/user-not-found') ||
+        message.includes('auth/wrong-password')
+      ) {
+        message = 'Email atau kata sandi tidak sesuai.';
+      } else if (
+        message.includes('auth/operation-not-allowed') ||
+        message.includes('operation-not-allowed')
+      ) {
+        message =
+          'Provider Email/Password belum diaktifkan di Firebase Console. Buka Firebase Console > Authentication > Sign-in method, lalu aktifkan opsi "Email/Password".';
+      } else if (message.includes('auth/network-request-failed')) {
+        message = 'Gagal terhubung ke layanan Firebase. Periksa koneksi internet Anda.';
       }
-
-      await storePortalToken('demo-super-admin-token');
-      toast.success('Signed in as Demo Super Admin');
-      router.push('/dashboard');
-      router.refresh();
-    } catch (error) {
-      toast.error('Demo login failed');
+      toast.error(message, { duration: 8000 });
     } finally {
       setLoading(false);
     }
@@ -75,7 +99,7 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-[400px]">
-      <div className="mb-10 text-left">
+      <div className="mb-8 text-left">
         <h1 className="text-3xl font-bold tracking-tight text-[#1a2b3b]">
           Log in to the Admin Dashboard
         </h1>
@@ -83,6 +107,30 @@ export function LoginForm() {
           Sign in with your credentials to access the dashboard
         </p>
       </div>
+
+      {!firebaseReady && (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+          <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-600" />
+          <div className="space-y-1">
+            <p className="font-semibold text-amber-900">Perhatian: Konfigurasi Firebase Diperlukan</p>
+            {diagnostics.missingVariables.length > 0 && (
+              <p className="text-amber-700">
+                Variabel belum disetel di <code className="font-mono bg-amber-100 px-1 py-0.5 rounded">.env.local</code>:{' '}
+                <span className="font-mono font-medium">{diagnostics.missingVariables.join(', ')}</span>
+              </p>
+            )}
+            {diagnostics.placeholderVariables.length > 0 && (
+              <p className="text-amber-700">
+                Variabel berupa placeholder:{' '}
+                <span className="font-mono font-medium">{diagnostics.placeholderVariables.join(', ')}</span>
+              </p>
+            )}
+            <p className="text-amber-600 text-[11px] pt-1">
+              Salin konfigurasi Web App resmi dari Firebase Console ke file <code className="font-mono bg-amber-100 px-1 py-0.5 rounded">.env.local</code> untuk mengaktifkan login.
+            </p>
+          </div>
+        </div>
+      )}
 
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-2">
@@ -140,24 +188,10 @@ export function LoginForm() {
           )}
         </Button>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleDemoLogin}
-          className="h-12 w-full rounded-xl text-base font-semibold border-slate-200 hover:bg-slate-50"
-          disabled={loading}
-        >
-          Quick Demo Login (Bypass Auth)
-        </Button>
-
         <div className="text-left">
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            className="text-xs font-medium text-[#e56464] transition-opacity hover:opacity-80 underline"
-          >
-            Unable to login? Click here for Demo Mode
-          </button>
+          <p className="text-xs text-[#7c8b9a]">
+            Contact system administrator if you require account access or assistance.
+          </p>
         </div>
       </form>
     </div>

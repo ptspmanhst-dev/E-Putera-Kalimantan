@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadSchoolLogo } from '@/lib/worker';
+import { verifySuperAdminFromRequest } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
+  const isAuthorized = await verifySuperAdminFromRequest(request);
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const formData = await request.formData();
   const file = formData.get('logo');
 

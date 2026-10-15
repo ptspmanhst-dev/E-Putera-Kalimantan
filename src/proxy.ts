@@ -7,6 +7,8 @@ import {
 const protectedPaths = [
   /^\/dashboard(?:\/.*)?$/,
   /^\/schools(?:\/.*)?$/,
+  /^\/users(?:\/.*)?$/,
+  /^\/audit-logs(?:\/.*)?$/,
   /^\/settings(?:\/.*)?$/,
   /^\/api\/super-admin(?:\/.*)?$/,
 ];
@@ -63,6 +65,8 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/schools/:path*',
+    '/users/:path*',
+    '/audit-logs/:path*',
     '/settings/:path*',
     '/api/super-admin/:path*',
   ],

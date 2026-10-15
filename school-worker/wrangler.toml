@@ -14,7 +14,7 @@ bucket_name = "school-management-media"
 [vars]
 # Public Firebase project id (same as NEXT_PUBLIC_FIREBASE_PROJECT_ID). Not a secret.
 # Override in the Cloudflare dashboard if you use different values per environment.
-FIREBASE_PROJECT_ID = "yft-ss"
+FIREBASE_PROJECT_ID = "dev-mechanic-jq6d2"
 # Set via Wrangler secrets (never commit values):
 #   npx wrangler secret put FIREBASE_WEB_API_KEY
 #   npx wrangler secret put SUPER_ADMIN_API_KEY

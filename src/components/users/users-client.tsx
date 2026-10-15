@@ -77,8 +77,10 @@ const MOCK_USERS: UserItem[] = [
   },
 ];
 
-export function UsersClient({ schools }: { schools: School[] }) {
-  const [users, setUsers] = useState<UserItem[]>(MOCK_USERS);
+export function UsersClient({ schools, initialUsers }: { schools: School[]; initialUsers?: UserItem[] }) {
+  const [users, setUsers] = useState<UserItem[]>(
+    initialUsers && initialUsers.length > 0 ? initialUsers : MOCK_USERS
+  );
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [schoolFilter, setSchoolFilter] = useState<string>('all');

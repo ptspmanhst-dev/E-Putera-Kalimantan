@@ -11,7 +11,7 @@ function sessionSecretConfigured() {
   const raw =
     process.env.SUPER_ADMIN_JWT_SECRET?.trim() ||
     process.env.SUPER_ADMIN_API_KEY?.trim();
-  return Boolean(raw && raw.length >= MIN_PORTAL_SESSION_SECRET_LENGTH);
+  return Boolean(raw && raw.length >= 20);
 }
 
 export async function POST(request: NextRequest) {
@@ -25,8 +25,7 @@ export async function POST(request: NextRequest) {
   if (!sessionSecretConfigured()) {
     return NextResponse.json(
       {
-        error:
-          `Server misconfigured: set SUPER_ADMIN_API_KEY (≥${MIN_PORTAL_SESSION_SECRET_LENGTH} chars; longer is better) or SUPER_ADMIN_JWT_SECRET in .env.local — match the Worker super-admin secret.`,
+        error: 'Server misconfigured: missing session secret.',
         code: 'missing_session_secret',
       },
       { status: 500 },
@@ -39,8 +38,7 @@ export async function POST(request: NextRequest) {
   if (!projectId) {
     return NextResponse.json(
       {
-        error:
-          'Server misconfigured: set FIREBASE_PROJECT_ID or NEXT_PUBLIC_FIREBASE_PROJECT_ID in .env.local.',
+        error: 'Server misconfigured: missing project ID.',
         code: 'missing_project_id',
       },
       { status: 500 },
@@ -48,16 +46,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    let sub = 'demo-super-admin-uid';
-    let email = 'admin@edumanager.edu';
-
-    if (token === 'demo-super-admin-token') {
-      // Demo bypass mode
-    } else {
-      const payload = await verifySuperAdmin(token, projectId);
-      sub = String(payload.sub);
-      email = typeof payload.email === 'string' ? payload.email : email;
-    }
+    const payload = await verifySuperAdmin(token, projectId);
+    const sub = String(payload.sub);
+    const email = typeof payload.email === 'string' ? payload.email : undefined;
 
     const sessionJwt = await signSuperAdminPortalSession({
       sub,
@@ -82,28 +73,28 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (err) {
-    // Fallback for seamless demo/preview login experience
-    const sessionJwt = await signSuperAdminPortalSession({
-      sub: 'fallback-super-admin-uid',
-      email: 'admin@edumanager.edu',
-    });
+    const message = err instanceof Error ? err.message : String(err);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[api/session]', err);
+    }
 
-    const response = NextResponse.json({
-      ok: true,
-      user: {
-        uid: 'fallback-super-admin-uid',
-        email: 'admin@edumanager.edu',
+    if (message === 'Not a super admin session') {
+      return NextResponse.json(
+        {
+          error:
+            'This account is not a super admin (custom claims missing on the ID token).',
+          code: 'not_super_admin',
+        },
+        { status: 403 },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        error: 'Could not verify Firebase ID token.',
+        code: 'invalid_token',
       },
-    });
-
-    response.cookies.set(SESSION_COOKIE, sessionJwt, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: SESSION_COOKIE_MAX_AGE_SEC,
-    });
-
-    return response;
+      { status: 401 },
+    );
   }
 }

@@ -49,6 +49,7 @@ function parseEnvFile(filePath) {
 
 function loadFallbackEnv() {
   return {
+    ...parseEnvFile(path.join(repoRoot, '.env.local')),
     ...parseEnvFile(path.join(repoRoot, 'super-admin', '.env.local')),
     ...parseEnvFile(path.join(repoRoot, 'school-worker', '.dev.vars')),
   };

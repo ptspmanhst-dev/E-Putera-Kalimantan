@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateSchoolAdmin } from '@/lib/worker';
+import { verifySuperAdminFromRequest } from '@/lib/session';
 
 type RouteContext = {
   params: Promise<{ schoolId: string }>;
 };
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
+  const isAuthorized = await verifySuperAdminFromRequest(request);
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { schoolId } = await context.params;
     const body = await request.json();

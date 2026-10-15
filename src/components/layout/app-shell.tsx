@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { clearPortalToken } from '@/lib/portal-session';
+import { testConnection } from '@/lib/firebase';
 
 const navigation = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -37,6 +38,10 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    testConnection();
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {

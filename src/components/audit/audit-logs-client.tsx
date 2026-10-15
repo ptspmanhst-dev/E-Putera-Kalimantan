@@ -21,68 +21,60 @@ type AuditLogItem = {
 const INITIAL_LOGS: AuditLogItem[] = [
   {
     id: 'log-1',
-    timestamp: '2026-10-13 14:02:15',
-    actor: 'admin@edumanager.edu',
-    action: 'Demo Quick Login (Auth Bypass)',
-    category: 'Authentication',
+    timestamp: '2026-10-14 10:15:22',
+    actor: 'admin@eputera.sch.id',
+    action: 'Firestore Database Connected',
+    category: 'System',
     status: 'success',
-    details: 'User successfully logged in via demo bypass fallback session.',
+    details: 'Connected to Firestore database ai-studio-eputerakalimanta-ccb6ef64-cf86-45bf-ac02-96f8a94c4d73.',
     ip: '127.0.0.1',
   },
   {
     id: 'log-2',
-    timestamp: '2026-10-13 13:50:10',
-    actor: 'system@edumanager.edu',
-    action: 'Session Token Verified',
+    timestamp: '2026-10-14 09:50:10',
+    actor: 'ptspmanhst@gmail.com',
+    action: 'Super Admin Session Verified',
     category: 'Authentication',
     status: 'success',
-    details: 'Issued HttpOnly session cookie sa_session (lifetime 7 days).',
+    details: 'Verified Super Admin token with RS256 JWKS and issued secure session cookie.',
     ip: '127.0.0.1',
   },
   {
     id: 'log-3',
-    timestamp: '2026-10-13 12:15:44',
+    timestamp: '2026-10-14 09:15:44',
     actor: 'ahmad.fauzi@pradita.sch.id',
     action: 'School Details Updated',
     category: 'School Management',
     status: 'success',
-    details: 'Updated motto and phone for SMA Unggul Pradita.',
+    details: 'Updated profile information for SMA Unggul Pradita.',
     ip: '192.168.1.45',
   },
   {
     id: 'log-4',
-    timestamp: '2026-10-13 11:05:22',
-    actor: 'admin@edumanager.edu',
+    timestamp: '2026-10-14 08:05:22',
+    actor: 'admin@eputera.sch.id',
     action: 'School Onboarded',
     category: 'School Management',
     status: 'success',
-    details: 'Successfully provisioned new tenant school: SMP Nusantara Cendekia.',
+    details: 'Successfully provisioned tenant school: SMP Nusantara Cendekia.',
     ip: '127.0.0.1',
   },
   {
     id: 'log-5',
-    timestamp: '2026-10-13 10:00:01',
+    timestamp: '2026-10-14 08:00:01',
     actor: 'system',
-    action: 'Database Schema Synchronized',
+    action: 'Database Blueprint Synchronized',
     category: 'System',
     status: 'info',
-    details: 'SQLite / Drizzle migrations checked successfully.',
+    details: 'Synchronized firebase-blueprint.json and deployed Firestore security rules.',
     ip: 'localhost',
-  },
-  {
-    id: 'log-6',
-    timestamp: '2026-10-13 09:30:12',
-    actor: 'unknown',
-    action: 'Login Attempt Bottleneck / Retry',
-    category: 'Authentication',
-    status: 'warning',
-    details: 'Multiple rapid sign-in attempts detected from IP 203.0.113.42.',
-    ip: '203.0.113.42',
   },
 ];
 
-export function AuditLogsClient() {
-  const [logs, setLogs] = useState<AuditLogItem[]>(INITIAL_LOGS);
+export function AuditLogsClient({ initialLogs }: { initialLogs?: AuditLogItem[] }) {
+  const [logs, setLogs] = useState<AuditLogItem[]>(
+    initialLogs && initialLogs.length > 0 ? initialLogs : INITIAL_LOGS
+  );
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');

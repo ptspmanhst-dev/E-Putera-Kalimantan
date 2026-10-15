@@ -1,14 +1,15 @@
-import { fetchSchools } from '@/lib/worker';
+import { fetchSchools, fetchUsers } from '@/lib/worker';
 import { UsersClient } from '@/components/users/users-client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function UsersPage() {
   let schools: any[] = [];
+  let users: any[] = [];
   try {
-    schools = await fetchSchools();
+    [schools, users] = await Promise.all([fetchSchools(), fetchUsers()]);
   } catch (err) {
-    console.error('Failed to fetch schools for users page:', err);
+    console.error('Failed to fetch schools or users for users page:', err);
   }
 
   return (
@@ -20,7 +21,7 @@ export default async function UsersPage() {
         </p>
       </div>
 
-      <UsersClient schools={schools} />
+      <UsersClient schools={schools} initialUsers={users} />
     </div>
   );
 }

@@ -1,8 +1,11 @@
 import { AuditLogsClient } from '@/components/audit/audit-logs-client';
+import { fetchAuditLogs } from '@/lib/worker';
 
 export const dynamic = 'force-dynamic';
 
-export default function AuditLogsPage() {
+export default async function AuditLogsPage() {
+  const initialLogs = await fetchAuditLogs();
+
   return (
     <div className="space-y-8 p-8 lg:p-12">
       <div>
@@ -12,7 +15,7 @@ export default function AuditLogsPage() {
         </p>
       </div>
 
-      <AuditLogsClient />
+      <AuditLogsClient initialLogs={initialLogs} />
     </div>
   );
 }

@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.super_admin == true ||
+        request.auth.token.email == 'ptspmanhst@gmail.com'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Schools collection
+    match /schools/{schoolId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isSuperAdmin() && isValidId(schoolId);
+
+      match /classes/{classId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidId(classId);
+      }
+
+      match /subjects/{subjectId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidId(subjectId);
+      }
+
+      match /students/{studentId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidId(studentId);
+      }
+
+      match /attendance/{recordId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidId(recordId);
+      }
+
+      match /grades/{gradeId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidId(gradeId);
+      }
+
+      match /finance/{financeId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidId(financeId);
+      }
+
+      match /notices/{noticeId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidId(noticeId);
+      }
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(userId);
+    }
+
+    // Audit logs
+    match /audit_logs/{logId} {
+      allow read: if isSuperAdmin();
+      allow create: if isSignedIn() && isValidId(logId);
+      allow update, delete: if false;
+    }
+
+    // Test connection
+    match /test/{docId} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}

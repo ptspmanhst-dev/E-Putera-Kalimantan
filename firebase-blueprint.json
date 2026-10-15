@@ -1,0 +1,195 @@
+{
+  "entities": {
+    "School": {
+      "title": "School",
+      "description": "School tenant profile and institutional settings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "logo_url": { "type": "string" },
+        "motto": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "term_system": { "type": "number" },
+        "current_term_id": { "type": "string" },
+        "is_active": { "type": "boolean" },
+        "student_id_prefix": { "type": "string" },
+        "teacher_id_prefix": { "type": "string" },
+        "student_count": { "type": "number" },
+        "user_count": { "type": "number" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["id", "name", "is_active", "created_at"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User accounts across roles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["super_admin", "school_admin", "teacher", "student", "parent"] },
+        "schoolId": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "role", "schoolId", "createdAt"]
+    },
+    "ClassEntity": {
+      "title": "ClassEntity",
+      "description": "School classes and grades",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "school_id": { "type": "string" },
+        "class_name": { "type": "string" },
+        "level": { "type": "number" }
+      },
+      "required": ["id", "school_id", "class_name"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Subjects taught at school",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "school_id": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "school_id", "name"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Enrolled student records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "school_id": { "type": "string" },
+        "admission_number": { "type": "string" },
+        "full_name": { "type": "string" },
+        "class_id": { "type": "string" },
+        "gender": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "school_id", "admission_number", "full_name"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Daily student attendance",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "school_id": { "type": "string" },
+        "student_id": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["present", "absent", "excused", "late"] }
+      },
+      "required": ["id", "school_id", "student_id", "date", "status"]
+    },
+    "GradeRecord": {
+      "title": "GradeRecord",
+      "description": "Student assessment and exam grades",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "school_id": { "type": "string" },
+        "student_id": { "type": "string" },
+        "subject_id": { "type": "string" },
+        "term_id": { "type": "string" },
+        "score": { "type": "number" },
+        "grade_letter": { "type": "string" }
+      },
+      "required": ["id", "school_id", "student_id", "subject_id", "score"]
+    },
+    "FinanceRecord": {
+      "title": "FinanceRecord",
+      "description": "School fees and payment records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "school_id": { "type": "string" },
+        "student_id": { "type": "string" },
+        "title": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["paid", "pending", "overdue"] },
+        "due_date": { "type": "string" }
+      },
+      "required": ["id", "school_id", "title", "amount", "status"]
+    },
+    "Notice": {
+      "title": "Notice",
+      "description": "School announcement",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "school_id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["id", "school_id", "title", "content", "created_at"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Activity audit log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "actor_email": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/schools/{schoolId}": {
+      "schema": { "$ref": "#/entities/School" },
+      "description": "School tenant profiles"
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User accounts"
+    },
+    "/schools/{schoolId}/classes/{classId}": {
+      "schema": { "$ref": "#/entities/ClassEntity" },
+      "description": "School classes"
+    },
+    "/schools/{schoolId}/subjects/{subjectId}": {
+      "schema": { "$ref": "#/entities/Subject" },
+      "description": "School subjects"
+    },
+    "/schools/{schoolId}/students/{studentId}": {
+      "schema": { "$ref": "#/entities/Student" },
+      "description": "Enrolled students"
+    },
+    "/schools/{schoolId}/attendance/{recordId}": {
+      "schema": { "$ref": "#/entities/AttendanceRecord" },
+      "description": "Student attendance"
+    },
+    "/schools/{schoolId}/grades/{gradeId}": {
+      "schema": { "$ref": "#/entities/GradeRecord" },
+      "description": "Student grades"
+    },
+    "/schools/{schoolId}/finance/{financeId}": {
+      "schema": { "$ref": "#/entities/FinanceRecord" },
+      "description": "Fee invoices and payments"
+    },
+    "/schools/{schoolId}/notices/{noticeId}": {
+      "schema": { "$ref": "#/entities/Notice" },
+      "description": "School notices"
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Audit trails"
+    }
+  }
+}
