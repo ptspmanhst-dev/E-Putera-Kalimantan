@@ -58,10 +58,10 @@ const MOCK_USERS: UserItem[] = [
   {
     id: 'u-4',
     name: 'Super Administrator',
-    email: 'admin@edumanager.edu',
-    phone: '+62 21 555 0100',
+    email: 'ptspmanhst@gmail.com',
+    phone: '+62 811 0000 0000',
     role: 'super_admin',
-    schoolName: 'System Wide',
+    schoolName: 'Platform Central (System Wide)',
     status: 'active',
     createdAt: '2026-01-01',
   },

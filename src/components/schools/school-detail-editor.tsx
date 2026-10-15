@@ -410,8 +410,8 @@ export function SchoolDetailEditor({ school }: Props) {
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 p-4">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Created</p>
-                  <p className="mt-1 text-sm font-semibold text-white">
-                    {new Date(school.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  <p className="mt-1 text-sm font-semibold text-white" suppressHydrationWarning>
+                    {school.created_at ? school.created_at.slice(0, 10) : '-'}
                   </p>
                 </div>
               </div>

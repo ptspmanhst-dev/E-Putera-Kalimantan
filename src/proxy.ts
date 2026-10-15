@@ -43,7 +43,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const cookieToken = request.cookies.get(SESSION_COOKIE)?.value;
+  const paramToken = request.nextUrl.searchParams.get('session');
+  const token = cookieToken || paramToken;
 
   if (!token) {
     return wantsJson(request)
@@ -53,7 +55,17 @@ export async function proxy(request: NextRequest) {
 
   try {
     await verifySuperAdminPortalSession(token);
-    return NextResponse.next();
+    const res = NextResponse.next();
+    if (paramToken && !cookieToken) {
+      res.cookies.set(SESSION_COOKIE, paramToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    }
+    return res;
   } catch {
     return wantsJson(request)
       ? NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

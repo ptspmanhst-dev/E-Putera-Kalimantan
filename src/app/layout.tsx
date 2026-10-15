@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${headingFont.variable}`}>
-      <body className="font-[var(--font-plus-jakarta)]">
+    <html lang="en" className={`${bodyFont.variable} ${headingFont.variable}`} suppressHydrationWarning>
+      <body className="font-[var(--font-plus-jakarta)]" suppressHydrationWarning>
         {children}
         <Toaster richColors closeButton position="top-right" />
       </body>

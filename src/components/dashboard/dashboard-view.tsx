@@ -79,7 +79,7 @@ export function DashboardView({ metrics, trend, recentSchools }: DashboardViewPr
     },
     {
       label: 'Total Ecosystem Revenue',
-      value: `GH₵${(metrics.total_revenue ?? 0).toLocaleString()}`,
+      value: `GH₵${(metrics.total_revenue ?? 0).toLocaleString('en-US')}`,
       icon: Banknote,
       color: 'blue',
     },
@@ -107,8 +107,11 @@ export function DashboardView({ metrics, trend, recentSchools }: DashboardViewPr
             >
               <div>
                 <p className="text-xs font-semibold opacity-70 sm:text-sm">{card.label}</p>
-                <p className="font-[var(--font-space-grotesk)] text-2xl font-bold tracking-tight sm:text-3xl">
-                  {typeof card.value === 'number' ? card.value.toLocaleString() : card.value}
+                <p 
+                  className="font-[var(--font-space-grotesk)] text-2xl font-bold tracking-tight sm:text-3xl"
+                  suppressHydrationWarning
+                >
+                  {typeof card.value === 'number' ? card.value.toLocaleString('en-US') : card.value}
                 </p>
               </div>
               <div className="flex size-12 items-center justify-center rounded-xl bg-white/60 shadow-sm backdrop-blur-md sm:size-14 sm:rounded-2xl">
