@@ -2,9 +2,9 @@ import type { MiddlewareHandler } from 'hono';
 import type { AppEnv } from '../app-env';
 import { jsonError } from './response';
 
-const SCHOOL_ROLES = new Set(['admin', 'teacher', 'parent']);
+const SCHOOL_ROLES = new Set(['admin', 'teacher', 'parent', 'student']);
 
-export function requireRoles(...roles: Array<'admin' | 'teacher' | 'parent'>): MiddlewareHandler<AppEnv> {
+export function requireRoles(...roles: Array<'admin' | 'teacher' | 'parent' | 'student'>): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
     const user = c.get('user');
     if (!SCHOOL_ROLES.has(user.role)) {

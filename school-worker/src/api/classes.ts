@@ -22,7 +22,7 @@ const updateClassSchema = z.object({
 async function requireAcademicCalendar(c: any, schoolId: string) {
   const school = await c.env.DB.prepare(
     'SELECT academic_calendar_json FROM Schools WHERE id = ? LIMIT 1'
-  ).bind(schoolId).first<{ academic_calendar_json: string | null }>();
+  ).bind(schoolId).first();
 
   return Boolean(school?.academic_calendar_json);
 }

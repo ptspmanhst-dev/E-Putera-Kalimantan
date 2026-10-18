@@ -13,49 +13,17 @@ import { Label } from '@/components/ui/label';
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('ptspmanhst@gmail.com');
-  const [password, setPassword] = useState('Password123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const diagnostics = getFirebaseConfigDiagnostics();
   const firebaseReady = diagnostics.isConfigured;
-
-  async function handleInstantLogin() {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: 'dev-bypass-token-ptspmanhst' }),
-      });
-
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(body?.error ?? 'Gagal membuat sesi Super Admin');
-      }
-
-      const data = await response.json();
-      const sessionJwt = data.token;
-      await storePortalToken(sessionJwt || 'dev-bypass-token-ptspmanhst');
-      toast.success('Selamat datang kembali, Super Admin!');
-      const targetUrl = sessionJwt ? `/dashboard?session=${encodeURIComponent(sessionJwt)}` : '/dashboard';
-      window.location.href = targetUrl;
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal masuk ke dashboard');
-      setLoading(false);
-    }
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
 
     try {
-      let token = '';
-      const cleanEmail = email.trim().toLowerCase();
-
-      if (cleanEmail === 'ptspmanhst@gmail.com') {
-        token = 'dev-bypass-token-ptspmanhst';
-      } else {
         if (!firebaseReady) {
           const details = diagnostics.missingVariables.length
             ? diagnostics.missingVariables.join(', ')
@@ -68,8 +36,7 @@ export function LoginForm() {
         const auth = getFirebaseAuth();
         const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
         const tokenResult = await credential.user.getIdTokenResult(true);
-        token = tokenResult.token;
-      }
+        const token = tokenResult.token;
 
       const response = await fetch('/api/session', {
         method: 'POST',
@@ -84,7 +51,7 @@ export function LoginForm() {
         throw new Error(body?.error ?? 'Gagal membuat sesi Super Admin');
       }
 
-      const data = await response.json();
+      const data: any = await response.json();
       const sessionJwt = data.token;
       await storePortalToken(sessionJwt || token);
       toast.success('Selamat datang kembali');
@@ -123,39 +90,24 @@ export function LoginForm() {
     <div className="w-full max-w-[420px]">
       <div className="mb-6 text-left">
         <h1 className="text-3xl font-bold tracking-tight text-[#1a2b3b]">
-          Log in to the Admin Dashboard
+          Selamat Datang
         </h1>
         <p className="mt-2 text-sm text-[#7c8b9a]">
-          Sign in with your Super Admin credentials to access the platform.
+          Silakan masuk dengan akun terdaftar Anda.
         </p>
       </div>
 
-      {/* Instant Login Button for Verified Workspace Account */}
-      <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-emerald-900 shadow-sm">
+      {/* Generic Login branding or remove if not needed */}
+      <div className="mb-6 rounded-2xl border border-gray-100 bg-gray-50/70 p-4 text-gray-900 shadow-sm">
         <div className="flex items-start gap-3">
-          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-600" />
+          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-gray-500" />
           <div className="flex-1">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-              Akses Cepat Super Admin
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800">
+              Akses Portal
             </h4>
-            <p className="mt-1 text-xs text-emerald-700">
-              Akun <strong>ptspmanhst@gmail.com</strong> telah terverifikasi. Masuk langsung ke dashboard tanpa kendala:
+            <p className="mt-1 text-xs text-gray-600">
+              Gunakan akun resmi sekolah Anda untuk masuk ke sistem.
             </p>
-            <Button
-              type="button"
-              onClick={handleInstantLogin}
-              disabled={loading}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 active:scale-[0.99]"
-            >
-              {loading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <>
-                  <span>Masuk Langsung ke Dashboard</span>
-                  <ArrowRight className="size-3.5" />
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </div>

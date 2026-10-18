@@ -20,48 +20,21 @@ service cloud.firestore {
     // Schools collection
     match /schools/{schoolId} {
       allow read: if isSignedIn();
-      allow create, update, delete: if isSuperAdmin() && isValidId(schoolId);
+      allow create, update: if isSignedIn();
+      allow delete: if isSuperAdmin() && isValidId(schoolId);
 
-      match /classes/{classId} {
+      match /{document=**} {
         allow read: if isSignedIn();
-        allow write: if isSignedIn() && isValidId(classId);
-      }
-
-      match /subjects/{subjectId} {
-        allow read: if isSignedIn();
-        allow write: if isSignedIn() && isValidId(subjectId);
-      }
-
-      match /students/{studentId} {
-        allow read: if isSignedIn();
-        allow write: if isSignedIn() && isValidId(studentId);
-      }
-
-      match /attendance/{recordId} {
-        allow read: if isSignedIn();
-        allow write: if isSignedIn() && isValidId(recordId);
-      }
-
-      match /grades/{gradeId} {
-        allow read: if isSignedIn();
-        allow write: if isSignedIn() && isValidId(gradeId);
-      }
-
-      match /finance/{financeId} {
-        allow read: if isSignedIn();
-        allow write: if isSignedIn() && isValidId(financeId);
-      }
-
-      match /notices/{noticeId} {
-        allow read: if isSignedIn();
-        allow write: if isSignedIn() && isValidId(noticeId);
+        // Allow write only if user is super-admin OR belongs to this school
+        allow write: if isSuperAdmin() || (isSignedIn() && request.auth.token.schoolId == schoolId);
       }
     }
 
     // Users collection
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && isValidId(userId);
+      allow create, update: if isSignedIn(); // Allow for all authenticated users to manage user documents
+      allow delete: if isSuperAdmin() && isValidId(userId);
     }
 
     // Audit logs

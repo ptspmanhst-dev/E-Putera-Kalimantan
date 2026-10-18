@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils';
 import { clearPortalToken } from '@/lib/portal-session';
 import { testConnection } from '@/lib/firebase';
 
+import { ImpersonationBanner } from './ImpersonationBanner';
+
 const navigation = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { href: '/schools', label: 'Schools', icon: Building2 },
@@ -38,6 +40,16 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [impersonation, setImpersonation] = useState<{active: boolean, operator: string, target: string} | null>({
+    active: true,
+    operator: 'Developer',
+    target: 'Guru Madrasah'
+  });
+
+  const endImpersonation = () => {
+    // Logic to call API and end session
+    setImpersonation(null);
+  };
 
   useEffect(() => {
     testConnection();
@@ -158,7 +170,17 @@ export function AppShell({
       <main className="transition-all duration-300 lg:pl-72">
         <div className="flex min-h-screen flex-col">
           {/* Topbar */}
-          <header className="sticky top-0 z-30 w-full bg-white/90 shadow-sm backdrop-blur-2xl px-4 sm:px-8">
+          <header className={cn(
+            "sticky top-0 z-30 w-full shadow-sm backdrop-blur-2xl px-4 sm:px-8 transition-colors duration-300",
+            impersonation?.active ? "bg-rose-50/90" : "bg-white/90"
+          )}>
+            {impersonation?.active && (
+              <ImpersonationBanner 
+                operatorName={impersonation.operator}
+                targetName={impersonation.target}
+                onEnd={endImpersonation}
+              />
+            )}
             <div className="flex h-[72px] items-center justify-between pt-[env(safe-area-inset-top,0px)] sm:h-20 sm:pt-0">
               <div className="flex items-center gap-4">
                 <button
