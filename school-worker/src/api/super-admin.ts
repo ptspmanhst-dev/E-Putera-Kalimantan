@@ -401,4 +401,72 @@ superAdmin.post('/onboard-school', async (c) => {
   }, 201);
 });
 
+const impersonateSchema = z.object({
+  target_uid: z.string().trim().min(1),
+  reason: z.string().trim().optional(),
+});
+
+superAdmin.post('/impersonate', async (c) => {
+  const parsed = impersonateSchema.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) {
+    return jsonError(c, 'Invalid impersonation payload', 400, parsed.error.flatten());
+  }
+
+  const { target_uid, reason } = parsed.data;
+  // Operator is assumed from the Super Admin key header or request context
+  const operatorUid = c.req.header('x-operator-uid') || 'super-admin-operator';
+  const sessionId = createPrefixedId('imp');
+
+  // Verify target user exists
+  const targetUser = await c.env.DB.prepare(
+    'SELECT uid, name, role, school_id FROM Users WHERE uid = ? LIMIT 1'
+  ).bind(target_uid).first<{ uid: string; name: string; role: string; school_id: string }>();
+
+  if (!targetUser) {
+    return jsonError(c, 'Target user not found', 404);
+  }
+
+  await c.env.DB.prepare(
+    `INSERT INTO ImpersonationSessions (id, operator_uid, target_uid, reason) VALUES (?, ?, ?, ?)`
+  ).bind(sessionId, operatorUid, target_uid, reason ?? 'Administrative support & audit').run();
+
+  return jsonOk(c, {
+    session_id: sessionId,
+    operator_uid: operatorUid,
+    target: {
+      uid: targetUser.uid,
+      name: targetUser.name,
+      role: targetUser.role,
+      school_id: targetUser.school_id,
+    },
+    message: 'Impersonation session started successfully',
+  }, 201);
+});
+
+const endImpersonateSchema = z.object({
+  session_id: z.string().trim().min(1),
+});
+
+superAdmin.post('/impersonate/end', async (c) => {
+  const parsed = endImpersonateSchema.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) {
+    return jsonError(c, 'Invalid payload', 400, parsed.error.flatten());
+  }
+
+  const { session_id } = parsed.data;
+
+  const result = await c.env.DB.prepare(
+    `UPDATE ImpersonationSessions SET ended_at = CURRENT_TIMESTAMP WHERE id = ? AND ended_at IS NULL`
+  ).bind(session_id).run();
+
+  if (result.meta.changes === 0) {
+    return jsonError(c, 'Active impersonation session not found or already ended', 404);
+  }
+
+  return jsonOk(c, {
+    session_id,
+    message: 'Impersonation session ended successfully',
+  });
+});
+
 export default superAdmin;

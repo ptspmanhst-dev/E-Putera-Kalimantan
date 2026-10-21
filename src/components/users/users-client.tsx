@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import { Search, Shield, UserCheck, UserX, Mail, Phone, Building2, Plus } from 'lucide-react';
+import { Search, Shield, UserCheck, UserX, Mail, Phone, Building2, Plus, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -121,6 +121,13 @@ export function UsersClient({ schools, initialUsers }: { schools: School[]; init
 
   function handleResetPassword(email: string) {
     toast.success(`Password reset instructions sent to ${email}`);
+  }
+
+  function handleImpersonate(user: UserItem) {
+    toast.success(`Memulai sesi impersonasi sebagai ${user.name} (${user.role})...`);
+    setTimeout(() => {
+      window.location.href = `/dashboard?impersonate=${user.id}&role=${user.role}&name=${encodeURIComponent(user.name)}`;
+    }, 800);
   }
 
   return (
@@ -270,6 +277,15 @@ export function UsersClient({ schools, initialUsers }: { schools: School[]; init
                     </td>
                     <td className="py-4 pl-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleImpersonate(u)}
+                          className="h-9 rounded-lg text-xs font-semibold bg-rose-50/70 text-rose-700 hover:bg-rose-100 border-rose-200"
+                        >
+                          <LogIn className="mr-1.5 size-3" />
+                          Impersonate
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
